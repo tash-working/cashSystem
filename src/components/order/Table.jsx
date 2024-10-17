@@ -208,7 +208,7 @@ const Table = () => {
           <br />
         ) : (
           
-          <QRCodeSVG value={`https://vbcqr.vercel.app/${insertedID}`}/>
+          <QRCodeSVG value={`https://vbcqr.vercel.app/rating/${insertedID}`}/>
         )}
        
 
