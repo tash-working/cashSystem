@@ -70,7 +70,7 @@ const Table = () => {
     
     
     try {
-      const response = await fetch( `http://localhost:5000/get_rating/${id}`);
+      const response = await fetch( `https://server-08ld.onrender.com/get_rating/${id}`);
       const jsonData = await response.json();
       console.log(jsonData); // Assuming setItems is used for a different purpose
       setFeedbackData({
@@ -106,7 +106,7 @@ const Table = () => {
     // Check if any field is empty (you might want to implement more specific validation)
     
     try {
-      const response = await fetch(`http://localhost:5000/set_rating`, {
+      const response = await fetch(`https://server-08ld.onrender.com/set_rating`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newFeedback),
@@ -131,6 +131,7 @@ const Table = () => {
       );
     }
   };
+
 
 
 
@@ -161,7 +162,7 @@ const Table = () => {
  
     // const fetchData2 = async () => {
     //   try {
-    //     const response = await fetch(`http://localhost:5000/tables/${table_num}`);
+    //     const response = await fetch(`https://server-08ld.onrender.com/tables/${table_num}`);
     //     const jsonData = await response.json();
     //     console.log(jsonData); // Assuming setItems is used for a different purpose
     //   } catch (error) {
