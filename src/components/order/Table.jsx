@@ -93,6 +93,20 @@ const Table = () => {
     
    
   };
+  function getExactTime() {
+    const date = new Date();
+    const options = {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      hour12: false, // Set to true for 12-hour format, false for 24-hour format
+      minute: 'numeric',
+      second: 'numeric',
+    };
+    const formattedTime = date.toLocaleTimeString('en-US', options);
+    return formattedTime;
+  }
+  
+  // Example usage:
+   // Output: "18:45:43" (in 24-hour format)
 
   const handleSubmit = async (event) => {
     const newFeedback = feedbackData
@@ -100,6 +114,9 @@ const Table = () => {
     newFeedback.order = "placed"
     newFeedback.table = table_num
     newFeedback.bill = orders.reduce((total, item) => total + item.price * item.quantity, 0)
+    const currentTime = getExactTime();
+    newFeedback.orderPlaceTime=currentTime
+  // console.log(currentTime);
 
     event.preventDefault();
 
