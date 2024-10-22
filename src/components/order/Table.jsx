@@ -4,12 +4,34 @@ import { useParams } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import './tables.css';
+import MenuCard from '../../menuCard/MenuCard';
 
 const Table = () => {
   const { table_num } = useParams();
 
   const [orders, setOrders] = useState([]);
   const [insertedID, setInsertedID] = useState("");
+  const [items, setItems] = useState([]);
+  const [specificitems, setSpecificitems] = useState([]);
+   
+
+   const callBack = (data)=>{
+    if (data.item_name === "burger") {
+      document.getElementById('ingredients').style.backgroundColor= "#e5cb7a"
+      
+    } else if (data.item_name === "salad") {
+      document.getElementById('ingredients').style.backgroundColor= "#32c704"
+      
+    } 
+    setSpecificitems(data.items);
+      
+   }
+ 
+  // const items = [
+  //   { _id: "1", name: "chicken", price: 100 },
+  //   { _id: "2", name: "fish", price: 110 },
+  //   { _id: "3", name: "beef", price: 160 },
+  //
 
 
 
@@ -93,6 +115,18 @@ const Table = () => {
     
    
   };
+
+   const getItems = async () => {
+      try {
+        const response = await fetch(`https://server-08ld.onrender.com/tables/getMenu`);
+        const jsonData = await response.json();
+        setItems(jsonData); // Assuming setItems is used for a different purpose
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+  
   function getExactTime() {
     const date = new Date();
     const options = {
@@ -113,7 +147,7 @@ const Table = () => {
     newFeedback.orders = orders
     newFeedback.order = "placed"
     newFeedback.table = table_num
-    newFeedback.bill = orders.reduce((total, item) => total + item.price * item.quantity, 0)
+    newFeedback.bill = orders.reduce((total, item) => total + item.totalPrice * item.quantity, 0)
     const currentTime = getExactTime();
     newFeedback.orderPlaceTime=currentTime
   // console.log(currentTime);
@@ -152,24 +186,25 @@ const Table = () => {
 
 
 
-  const items = [
-    { _id: "1", name: "chicken", price: 100 },
-    { _id: "2", name: "fish", price: 110 },
-    { _id: "3", name: "beef", price: 160 },
-  ];
+  
 
   const addOrder = (item) => {
     // Check if the item already exists in orders using object comparison
-    const existingOrder = orders.find(existing => existing._id === item._id);
+    const existingOrder = orders.find(existing => existing.name === item.name);
 
     if (!existingOrder) {
       // Create a new order object with quantity 1
       const newOrder = { ...item, quantity: 1 };
+      const newOrder2= [...orders, newOrder]
+      console.log(newOrder2);
+      
+
       setOrders([...orders, newOrder]); // Efficiently update orders with spread syntax
+
     } else {
       // Update the existing order's quantity
       const updatedOrders = orders.map(order =>
-        order._id === existingOrder._id ? { ...order, quantity: order.quantity + 1 } : order
+        order.name === existingOrder.name ? { ...order, quantity: order.quantity + 1 } : order
       );
       setOrders(updatedOrders);
     }
@@ -186,6 +221,7 @@ const Table = () => {
     //     console.log(error);
     //   }
     // };
+    getItems()
     getOrder()
 
    
@@ -195,13 +231,29 @@ const Table = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
       {/* Order Menu */}
+
+
+
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
         {items.map((item) => (
           <div key={item._id} style={{ border: "6px solid white", padding: "3px", margin: "3px" }}>
-            <h1>{item.name}</h1>
-            <button onClick={() => addOrder(item)}>{item.price+"tk"}</button>
+            
+           <MenuCard getItems={callBack}item={item}></MenuCard>
           </div>
         ))}
+
+
+
+
+      </div>
+      <div id='ingredients'>
+                {specificitems.map((item) => (
+                <div key={item.name} style={{  padding: "10px", margin: "30px" }}>
+                    {/* <button>{item.totalPrice + "tk"}</button> */}
+                     <button onClick={() => addOrder(item)}>{item.name}</button>
+
+                </div>
+            ))}
       </div>
 
       {/* Order Summary */}
@@ -209,14 +261,14 @@ const Table = () => {
        <span  ref={inputRef}>
        
         {orders.map(order => (
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px'}} key={order._id}>
-            <h3>{order.name}({order.quantity}{"X"}) ={order.price * order.quantity}tk</h3>
+          <div key={order.name} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px'}}>
+            <h3>{order.name}({order.quantity}{"X"}) ={order.totalPrice * order.quantity}tk</h3>
        
           </div>
         ))}
-        <h3>Sub Total: {orders.reduce((total, item) => total + item.price * item.quantity, 0)}tk</h3>
+        <h3>Sub Total: {orders.reduce((total, item) => total + item.totalPrice * item.quantity, 0)}tk</h3>
         {feedbackData.foodQuality === "" ? (
-          <h3>Total:  {orders.reduce((total, item) => total + item.price * item.quantity, 0)}tk</h3>
+          <h3>Total:  {orders.reduce((total, item) => total + item.totalPrice * item.quantity, 0)}tk</h3>
         ) : (
           
           <h3>Total: {feedbackData.bill}tk (after 10% dis.)</h3>
