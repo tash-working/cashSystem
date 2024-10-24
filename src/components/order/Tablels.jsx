@@ -23,7 +23,7 @@ const Tablels = () => {
     useEffect(() => {
         const fetchData = async () => {
           try {
-            const response = await fetch('https://server-08ld.onrender.com/orders');
+            const response = await fetch('http://localhost:5000/orders');
             const jsonData = await response.json();
             setTables(jsonData);
            
