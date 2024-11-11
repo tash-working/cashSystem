@@ -18,18 +18,19 @@ const Table = () => {
   const [items, setItems] = useState([]);
   const [specificitems, setSpecificitems] = useState([]);
   const getfco = (data) => {
-    const newFinalCustomOrders = [...finalCustomOrders]
     console.log(data);
 
-    newFinalCustomOrders[data.index] = {
-      dish: customOrders[data.index],
-      without: data.newItems
-    }
+    // const newFinalCustomOrders = [...finalCustomOrders]
+
+    // newFinalCustomOrders[data.index] = {
+    //   dish: customOrders[data.index],
+    //   without: data.newItems
+    // }
 
 
-    console.log(newFinalCustomOrders);
+    // console.log(newFinalCustomOrders);
 
-    setFinalCustomOrders(newFinalCustomOrders);
+    // setFinalCustomOrders(newFinalCustomOrders);
 
   }
 
@@ -125,7 +126,12 @@ const Table = () => {
     }
   };
   const getOrder = () => {
-    const storedData = JSON.parse(localStorage.getItem(`table${table_num}`));
+
+
+    const orders = JSON.parse(localStorage.getItem(`orders_for${table_num}`)) || [];
+    setCustomOrders(orders);
+
+    const storedData = JSON.parse(localStorage.getItem(`table${table_num}`,));
 
     if (storedData) {
       fetchData(storedData.order_id);
@@ -163,6 +169,8 @@ const Table = () => {
   // Output: "18:45:43" (in 24-hour format)
 
   const handleSubmit = async (event) => {
+    event.preventDefault();
+
     const newFeedback = feedbackData
     newFeedback.orders = orders
     newFeedback.order = "placed"
@@ -172,7 +180,6 @@ const Table = () => {
     newFeedback.orderPlaceTime = currentTime
     // console.log(currentTime);
 
-    event.preventDefault();
 
     // Check if any field is empty (you might want to implement more specific validation)
 
@@ -207,13 +214,18 @@ const Table = () => {
 
 
 
+  // adding items 
+
 
   const addOrder = (item) => {
     // Check if the item already exists in orders using object comparison
     console.log(item);
     const item_for_custom = { "name": item.name, "ingredients": item.ingredients }
 
+
     const newCustomOrder = [...customOrders, item_for_custom]
+    localStorage.setItem(`orders_for${table_num}`, JSON.stringify(newCustomOrder));
+
     setCustomOrders(newCustomOrder)
     console.log(newCustomOrder);
 
@@ -223,14 +235,16 @@ const Table = () => {
     if (!existingOrder) {
       // Create a new order object with quantity 1
       const newOrder = { ...item, quantity: 1 };
-      const newOrder2 = [...orders, newOrder]
-      console.log(newOrder2);
+      
+      // const newOrder2 = [...orders, newOrder]
+      // console.log(newOrder2);
 
-
-      setOrders([...orders, newOrder]); // Efficiently update orders with spread syntax
+      const savingOrder = [...orders, newOrder]
+      setOrders(savingOrder); // Efficiently update orders with spread syntax
 
     } else {
       // Update the existing order's quantity
+
       const updatedOrders = orders.map(order =>
         order.name === existingOrder.name ? { ...order, quantity: order.quantity + 1 } : order
       );
@@ -240,21 +254,12 @@ const Table = () => {
 
   useEffect(() => {
 
-    // const fetchData2 = async () => {
-    //   try {
-    //     const response = await fetch(`http://localhost:5000/tables/${table_num}`);
-    //     const jsonData = await response.json();
-    //     console.log(jsonData); // Assuming setItems is used for a different purpose
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
     getItems()
     getOrder()
 
-
+;
     // fetchData2()
-  }, [table_num, setInsertedID]); // Ensure useEffect runs only when table_num changes
+  }, [table_num, setInsertedID]) // Ensure useEffect runs only when table_num changes
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
@@ -295,11 +300,11 @@ const Table = () => {
       <div>
 
         {
-          finalCustomOrders.map((item, index) => (
-            <div key={index}>
-              <h3>{item.dish.name}</h3> {/* Added closing tag */}
-            </div>
-          ))
+          // finalCustomOrders.map((item, index) => (
+          //   <div key={index}>
+          //     <h3>{item.dish.name}</h3> {/* Added closing tag */}
+          //   </div>
+          // ))
         }
       </div>
 
@@ -357,3 +362,6 @@ const Table = () => {
 };
 
 export default Table;
+
+
+
